@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Bus Route Planner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app-container">
+    <header class="app-header">
+        <div class="logo">
+            <i class="fas fa-bus"></i>
+            <h1>Route Planner</h1>
+        </div>
+        <div class="plan-controls">
+            <button id="save-plan-btn" class="btn btn-secondary"><i class="fas fa-save"></i> Save Plan</button>
+            <button id="load-plan-btn" class="btn btn-primary"><i class="fas fa-folder-open"></i> Load Plan</button>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="left-panel">
+            <div id="controls">
+                <div class="bus-counter">
+                    <label>Buses:</label>
+                    <button id="decrement-bus-btn" class="bus-counter-btn">-</button>
+                    <span id="bus-count-display">2</span>
+                    <button id="increment-bus-btn" class="bus-counter-btn">+</button>
+                </div>
+                <button id="set-start-btn" class="btn btn-secondary"><i class="fas fa-school"></i> Set Start</button>
+                <button id="set-end-btn" class="btn btn-secondary"><i class="fas fa-warehouse"></i> Set End</button>
+                <button id="generate-routes-btn" class="btn btn-success"><i class="fas fa-route"></i> Generate Routes</button>
+                <button id="erase-mode-btn" class="btn btn-secondary"><i class="fas fa-eraser"></i> Erase</button>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <aside id="sidebar">
+            <div class="sidebar-content">
+                <h2><i class="fas fa-map-pin"></i> Marked Points</h2>
+                <ul id="marked-points-list"></ul>
+                <div id="directions-panel">
+                    <p class="placeholder-text">Click a generated route on the map to see directions here.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="point-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h3><i class="fas fa-user-plus"></i> Add Point Details</h3>
+        <form id="point-form">
+            <div class="form-group">
+                <label for="point-name">Name</label>
+                <input type="text" id="point-name" required>
+            </div>
+            <div class="form-group">
+                <label for="point-phone">Phone Number</label>
+                <input type="tel" id="point-phone">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="cancel-point-btn" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Point</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="js/map.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
