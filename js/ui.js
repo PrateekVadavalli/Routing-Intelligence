@@ -7,6 +7,8 @@ class UIManager {
         this.busCountDisplay = document.getElementById('bus-count-display');
         this.directionsPanel = document.getElementById('directions-panel');
         this.appContainer = document.getElementById('app-container');
+        this.loadingOverlay = document.getElementById('loading-overlay');
+        this.loadingText = document.getElementById('loading-text');
     }
     bindApp(app) {
         this.app = app;
@@ -55,5 +57,12 @@ class UIManager {
     clearAll() {
         this.markedPointsList.innerHTML = '';
         this.clearDirections();
+    }
+    showLoading(message) {
+        this.loadingText.textContent = message;
+        this.loadingOverlay.style.display = 'flex';
+    }
+    hideLoading() {
+        this.loadingOverlay.style.display = 'none';
     }
 }

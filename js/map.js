@@ -32,36 +32,45 @@ class MapManager {
         const popupText = type === 'start' ? 'Start Point' : 'End Point';
         const markerRef = type === 'start' ? 'startMarker' : 'endMarker';
         if (this[markerRef]) this.map.removeLayer(this[markerRef]);
-        this[markerRef] = L.marker(location, {
-            icon: L.divIcon({ className: 'terminal-marker', html: iconHtml })
-        }).addTo(this.map).bindPopup(popupText);
+        this[markerRef] = L.marker(location, { icon: L.divIcon({ className: 'terminal-marker', html: iconHtml }) }).addTo(this.map).bindPopup(popupText);
     }
-    drawRoutes(clusters, startLoc, endLoc) {
+    async drawRoutes(clusters, startLoc, endLoc) {
         this.clearRoutes();
         const busColors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00'];
-        clusters.forEach(async (cluster, index) => {
-            if (cluster.points.length === 0) return;
+        for (const [index, cluster] of clusters.entries()) {
+            if (cluster.points.length === 0) continue;
             const waypoints = [startLoc, ...cluster.points, endLoc];
-            const routeData = await this.getRoadRoute(waypoints);
-            if (!routeData) return;
+            const routeData = await this.getRoadRouteGeometry(waypoints);
+            if (!routeData) continue;
             const route = L.polyline(routeData.coords, { color: busColors[index % busColors.length], weight: 5 }).addTo(this.map);
-            route.on('click', () => {
-                uiManager.displayDirections(routeData, index);
-            });
+            route.on('click', () => { uiManager.displayDirections(routeData, index); });
             this.routeLayers.push(route);
-        });
+        }
     }
     clearRoutes() {
         this.routeLayers.forEach(layer => this.map.removeLayer(layer));
         this.routeLayers = [];
     }
     getVisiblePoints() {
-        return Array.from(this.pointMarkers.values()).filter(marker => this.map.hasLayer(marker)).map(marker => marker.getLatLng());
+        return Array.from(this.pointMarkers.values()).filter(marker => this.map.hasLayer(marker)).map(marker => {
+            const latlng = marker.getLatLng();
+            return { lat: latlng.lat, lng: latlng.lng };
+        });
     }
-    async getRoadRoute(coordinates) {
+    async getRouteDistance(coordinates) {
         try {
             const coordString = coordinates.map(c => `${c.lng},${c.lat}`).join(';');
-            const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&steps=true&annotations=true`;
+            const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=false`;
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.code !== 'Ok') return Infinity;
+            return data.routes[0].distance;
+        } catch { return Infinity; }
+    }
+    async getRoadRouteGeometry(coordinates) {
+        try {
+            const coordString = coordinates.map(c => `${c.lng},${c.lat}`).join(';');
+            const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&steps=true`;
             const response = await fetch(url);
             const data = await response.json();
             if (data.code !== 'Ok') throw new Error(data.message || 'Routing API error');
